@@ -1,37 +1,68 @@
-## Welcome to GitHub Pages
+### File Structure
 
-You can use the [editor on GitHub](https://github.com/Paul781/cloudbuild_test/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```yaml
+cloudbuild_test
+├── app
+│   └── app.py
+├── test
+│   └── test_app.py
+├── cloudbuild.yaml
+├── Dockerfile
+├── README.md
+├── requirements.txt
 ```
+- The code for application is under the app folder named app.py
+- The code for test is under the test folder named test_app.py
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
-### Jekyll Themes
+### Deployment Step
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Paul781/cloudbuild_test/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+1. run the unit test locally
+2. if passing all the unit tests, push code change to the develop branch of the github repo (version number can be changed in cloudbuild.yaml file)
+3. cloud build will be triggered and go to the gcp console to check the cloudbuild job status
+4. after the cloudbuild job finishes, go the gcr.io to check the docker image and tag
+5. create pull request from develop branch to master branch
 
-### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+
+### Build and Run Locally
+for the standalone API server:
+
+```shell
+cd cloudbuild_test
+docker build --build-arg var_version=2.0 --build-arg var_commitsha=aaaccc -t flask-app:latest .
+docker run  -p 80:80 flask-app
+```
+Go to browser and visit the `http://0.0.0.0/version`  
+`var_commitsha` and `var_version` are the commit sha and version number
+
+### Test
+Standalone unit tests run with:
+
+```shell
+pip install pytest
+cd cloudbuild_test
+pytest -v
+```
+After testing, submit a pull request to merge changes with **master**.
+
+### Risk
+1. we can send any http request to the application which is not secure.
+JWT or https is required for the application
+2. The github repo is public so anyone can read the code to understand the CI process.
+3. The vulnerability scan should be enabled for docker image
+4. The git hook should be enable to check the commit. for example, if you do not have the permission, you can not commit the code
+5. Enable the webhook in github repo so that the unit test can be run before the pull request is merged
+
+### CloudBuild
+- There is one cloud build trigger in my onedirect project of GCP.
+- Any push to the develop branch will trigger the cloud build to build the docker image using the cloudbuild.yaml file.
+- The docker image will be stored in the gcr.io
+
+### Version Control
+Change the version nummber in the cloudbuild.yaml file.
+```markdown
+substitutions:
+  _VERSION: "2.0"
+```
+Cloudbuild will use this version number as the tag for docker image

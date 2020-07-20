@@ -9,8 +9,8 @@ def hello():
 
 @app.route("/version")
 def version():
-    version = os.getenv('VERSION', "1.0")
-    commitsha = os.getenv('COMMITSHA', "abc57858585")
+    version = os.getenv('VERSION')
+    commitsha = os.getenv('COMMITSHA')
     result=[{
         "version": version,
         "lastcommitsha": commitsha,
