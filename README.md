@@ -14,19 +14,23 @@ cloudbuild_test
 - The code for application is under the app folder named app.py
 - The code for test is under the test folder named test_app.py
 
+Flask is used to implement the API backend. Unit test is done by pytest. CloudBuild is the CI tool.
+
+
 
 ### Deployment Step
 
 1. run the unit test locally
 2. if passing all the unit tests, push code change to the develop branch of the github repo (version number can be changed in cloudbuild.yaml file)
 3. cloud build will be triggered and go to the gcp console to check the cloudbuild job status
-4. after the cloudbuild job finishes, go the gcr.io to check the docker image and tag
+4. after the cloudbuild job finishes, go the gcr.io to check the `flask-api` image and tag
 5. create pull request from develop branch to master branch
+6. merge the pull request to master branch
 
 
 
 ### Build and Run Locally
-for the standalone API server:
+Standalone API server run with:
 
 ```shell
 cd cloudbuild_test
@@ -36,7 +40,7 @@ docker run  -p 80:80 flask-app
 Go to browser and visit the `http://0.0.0.0/version`  
 `var_commitsha` and `var_version` are the commit sha and version number
 
-### Test
+### Unit Test
 Standalone unit tests run with:
 
 ```shell
@@ -56,8 +60,8 @@ JWT or https is required for the application
 
 ### CloudBuild
 - There is one cloud build trigger in my onedirect project of GCP.
-- Any push to the develop branch will trigger the cloud build to build the docker image using the cloudbuild.yaml file.
-- The docker image will be stored in the gcr.io
+- Any push to the develop branch of this repo will trigger the cloud build to build the docker image using the cloudbuild.yaml file.
+- The docker image will be stored in the gcr.io in my ondirect project
 
 ### Version Control
 Change the version nummber in the cloudbuild.yaml file.
